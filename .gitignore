@@ -17,6 +17,8 @@ coverage/
 
 # Archivos de configuración local
 .env
+.env.*
+!.env.example
 .env.local
 .env.*.local
 .vscode/
