@@ -1,8 +1,9 @@
 
 # ==========================================================
-# TUVET - AZURE APP SERVICE
-# Frontend React + Vite
-# GitHub Actions - Rama main
+# TUVET - FRONTEND REACT + VITE
+# AZURE APP SERVICE
+# GitHub: DavidDutanSanchez/Front_TUVET
+# Branch: main
 # ==========================================================
 
 name: Build and deploy Node.js app to Azure Web App - tuvet-front
@@ -30,7 +31,7 @@ jobs:
     steps:
 
       # ----------------------------------------------------
-      # OBTENER CODIGO DESDE GITHUB
+      # OBTENER CODIGO
       # ----------------------------------------------------
 
       - name: Checkout repository
@@ -46,7 +47,7 @@ jobs:
           node-version: '22.x'
 
       # ----------------------------------------------------
-      # INSTALAR YARN
+      # CONFIGURAR YARN
       # ----------------------------------------------------
 
       - name: Enable Corepack
@@ -60,7 +61,7 @@ jobs:
         run: yarn install
 
       # ----------------------------------------------------
-      # COMPILAR FRONTEND TUVET
+      # COMPILAR REACT + VITE
       # ----------------------------------------------------
 
       - name: Build TuVet Frontend
@@ -73,14 +74,14 @@ jobs:
           yarn build
 
       # ----------------------------------------------------
-      # COMPROBAR QUE EXISTE DIST
+      # VALIDAR COMPILACION
       # ----------------------------------------------------
 
       - name: Verify build output
 
         run: |
           if [ ! -f dist/index.html ]; then
-            echo "ERROR: No se genero dist/index.html"
+            echo "ERROR: No existe dist/index.html"
             exit 1
           fi
 
@@ -89,18 +90,165 @@ jobs:
           ls -la dist
 
       # ----------------------------------------------------
-      # PREPARAR ARCHIVOS PARA DESPLIEGUE
+      # CREAR PAQUETE PARA AZURE APP SERVICE
       # ----------------------------------------------------
 
-      - name: Upload artifact for deployment job
+      - name: Prepare deployment package
+
+        run: |
+          mkdir -p deploy-package/public
+
+          cp -R dist/. deploy-package/public/
+
+          cat > deploy-package/package.json <<'EOF'
+          {
+            "name": "tuvet-azure",
+            "version": "1.0.0",
+            "private": true,
+            "scripts": {
+              "start": "node server.cjs"
+            }
+          }
+          EOF
+
+          cat > deploy-package/server.cjs <<'EOF'
+          const http = require('http');
+          const fs = require('fs');
+          const path = require('path');
+
+          const root = path.join(__dirname, 'public');
+
+          const port = Number(process.env.PORT) || 8080;
+
+          const mimeTypes = {
+            '.html': 'text/html; charset=utf-8',
+            '.js': 'text/javascript; charset=utf-8',
+            '.css': 'text/css; charset=utf-8',
+            '.json': 'application/json; charset=utf-8',
+            '.png': 'image/png',
+            '.jpg': 'image/jpeg',
+            '.jpeg': 'image/jpeg',
+            '.gif': 'image/gif',
+            '.svg': 'image/svg+xml',
+            '.ico': 'image/x-icon',
+            '.webp': 'image/webp',
+            '.woff': 'font/woff',
+            '.woff2': 'font/woff2',
+            '.txt': 'text/plain; charset=utf-8',
+            '.xml': 'application/xml; charset=utf-8'
+          };
+
+          const server = http.createServer((req, res) => {
+
+            if (req.method !== 'GET' && req.method !== 'HEAD') {
+              res.writeHead(405);
+              res.end('Method Not Allowed');
+              return;
+            }
+
+            let pathname;
+
+            try {
+              pathname = decodeURIComponent(
+                new URL(req.url, 'http://localhost').pathname
+              );
+            } catch {
+              res.writeHead(400);
+              res.end('Bad Request');
+              return;
+            }
+
+            let requestedFile = path.resolve(
+              root,
+              '.' + pathname
+            );
+
+            const relative = path.relative(root, requestedFile);
+
+            if (
+              relative === '..' ||
+              relative.startsWith('..' + path.sep) ||
+              path.isAbsolute(relative)
+            ) {
+              res.writeHead(403);
+              res.end('Forbidden');
+              return;
+            }
+
+            if (
+              fs.existsSync(requestedFile) &&
+              fs.statSync(requestedFile).isDirectory()
+            ) {
+              requestedFile = path.join(
+                requestedFile,
+                'index.html'
+              );
+            }
+
+            if (!fs.existsSync(requestedFile)) {
+
+              const acceptsHtml = (
+                req.headers.accept || ''
+              ).includes('text/html');
+
+              if (
+                !acceptsHtml ||
+                path.extname(pathname)
+              ) {
+                res.writeHead(404);
+                res.end('Not Found');
+                return;
+              }
+
+              requestedFile = path.join(
+                root,
+                'index.html'
+              );
+            }
+
+            const extension = path.extname(requestedFile);
+
+            const contentType =
+              mimeTypes[extension] ||
+              'application/octet-stream';
+
+            res.writeHead(200, {
+              'Content-Type': contentType
+            });
+
+            if (req.method === 'HEAD') {
+              res.end();
+              return;
+            }
+
+            fs.createReadStream(requestedFile)
+              .pipe(res);
+
+          });
+
+          server.listen(port, '0.0.0.0', () => {
+            console.log(
+              'TuVet frontend running on port ' + port
+            );
+          });
+          EOF
+
+          echo "Paquete de despliegue preparado"
+
+          ls -la deploy-package
+
+      # ----------------------------------------------------
+      # SUBIR PAQUETE
+      # ----------------------------------------------------
+
+      - name: Upload artifact for deployment
 
         uses: actions/upload-artifact@v4
 
         with:
-          name: node-app
-          path: .
-          include-hidden-files: false
-
+          name: tuvet-frontend
+          path: deploy-package/
+          if-no-files-found: error
 
   # ========================================================
   # DEPLOY
@@ -116,21 +264,19 @@ jobs:
       id-token: write
       contents: read
 
-    environment:
-      name: Production
-
     steps:
 
       # ----------------------------------------------------
-      # DESCARGAR ARCHIVOS COMPILADOS
+      # DESCARGAR PAQUETE
       # ----------------------------------------------------
 
-      - name: Download artifact from build job
+      - name: Download artifact
 
         uses: actions/download-artifact@v4
 
         with:
-          name: node-app
+          name: tuvet-frontend
+          path: .
 
       # ----------------------------------------------------
       # INICIAR SESION EN AZURE
@@ -147,8 +293,6 @@ jobs:
           tenant-id: ${{ secrets.AZUREAPPSERVICE_TENANTID_AAA53E4FB8A34741B79030CC6052C4B2 }}
 
           subscription-id: ${{ secrets.AZUREAPPSERVICE_SUBSCRIPTIONID_1990006AB3CA4B4AAA6B1148C0EE0AB8 }}
-
-          allow-no-subscriptions: true
 
       # ----------------------------------------------------
       # PUBLICAR EN AZURE APP SERVICE
@@ -167,3 +311,14 @@ jobs:
           slot-name: 'Production'
 
           package: .
+
+      # ----------------------------------------------------
+      # CERRAR SESION
+      # ----------------------------------------------------
+
+      - name: Logout from Azure
+
+        if: always()
+
+        run: |
+          az logout || true
