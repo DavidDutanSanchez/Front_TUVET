@@ -85,6 +85,15 @@ const SideBarMenu = () => {
         'RECEPCION',
       ],
     },
+    {
+  name: 'Hospitalizaciones',
+  route: '/hospitalizaciones',
+  icon: '🏥',
+  roles: [
+    'ADMINISTRADOR',
+    'VETERINARIO',
+  ],
+},
 
     {
       name: 'Agenda',

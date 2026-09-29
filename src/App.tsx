@@ -34,6 +34,9 @@ import ServiciosPage
 import UsuariosPage
   from './pages/UsuariosPage'
 
+import HospitalizacionesPage
+  from './pages/HospitalizacionesPage'
+
 
 // ==========================================================
 // LAYOUT DEL SISTEMA INTERNO
@@ -133,6 +136,22 @@ function App() {
             </ProtectedRoute>
           }
         />
+
+        <Route
+  path="/hospitalizaciones"
+  element={
+    <ProtectedRoute
+      roles={[
+        'ADMINISTRADOR',
+        'VETERINARIO',
+      ]}
+    >
+      <SistemaLayout>
+        <HospitalizacionesPage />
+      </SistemaLayout>
+    </ProtectedRoute>
+  }
+/>
 
 
         {/* ================================================= */}

@@ -123,7 +123,7 @@ function ProductosTable({
             </th>
 
             <th className="px-5 py-4 text-center text-xs font-semibold uppercase text-slate-500">
-              Stock mínimo
+              Stock
             </th>
 
             <th className="px-5 py-4 text-right text-xs font-semibold uppercase text-slate-500">

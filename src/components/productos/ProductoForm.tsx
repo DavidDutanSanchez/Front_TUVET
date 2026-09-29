@@ -740,7 +740,7 @@ function ProductoForm({
             <div>
 
               <label className={labelClass}>
-                Stock mínimo
+                Stock
               </label>
 
               <input
