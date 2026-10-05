@@ -4,6 +4,10 @@ import {
   Routes,
 } from 'react-router-dom'
 
+import type {
+  ReactNode,
+} from 'react'
+
 import SideBarMenu
   from './components/sideBarMenu/sideBarMenu'
 
@@ -37,7 +41,10 @@ import UsuariosPage
 import HospitalizacionesPage
   from './pages/HospitalizacionesPage'
 
-import CajaPage from './pages/CajaPage'
+import CajaPage
+  from './pages/CajaPage'
+
+
 // ==========================================================
 // LAYOUT DEL SISTEMA INTERNO
 // ==========================================================
@@ -45,19 +52,32 @@ import CajaPage from './pages/CajaPage'
 function SistemaLayout({
   children,
 }: {
-  children: React.ReactNode
+  children: ReactNode
 }) {
 
   return (
+
     <div className="min-h-screen bg-slate-50">
+
+      {/* ================================================ */}
+      {/* MENÚ LATERAL */}
+      {/* ================================================ */}
 
       <SideBarMenu />
 
+
+      {/* ================================================ */}
+      {/* CONTENIDO DEL SISTEMA */}
+      {/* ================================================ */}
+
       <div className="pl-20">
+
         {children}
+
       </div>
 
     </div>
+
   )
 }
 
@@ -73,6 +93,7 @@ function App() {
     <BrowserRouter>
 
       <Routes>
+
 
         {/* ================================================= */}
         {/* RUTAS PÚBLICAS */}
@@ -101,6 +122,7 @@ function App() {
         <Route
           path="/clientes"
           element={
+
             <ProtectedRoute
               roles={[
                 'ADMINISTRADOR',
@@ -108,10 +130,15 @@ function App() {
                 'RECEPCION',
               ]}
             >
+
               <SistemaLayout>
+
                 <PersonasPage />
+
               </SistemaLayout>
+
             </ProtectedRoute>
+
           }
         />
 
@@ -123,6 +150,7 @@ function App() {
         <Route
           path="/mascotas"
           element={
+
             <ProtectedRoute
               roles={[
                 'ADMINISTRADOR',
@@ -130,28 +158,44 @@ function App() {
                 'RECEPCION',
               ]}
             >
+
               <SistemaLayout>
+
                 <MascotasPage />
+
               </SistemaLayout>
+
             </ProtectedRoute>
+
           }
         />
 
+
+        {/* ================================================= */}
+        {/* HOSPITALIZACIONES */}
+        {/* ================================================= */}
+
         <Route
-  path="/hospitalizaciones"
-  element={
-    <ProtectedRoute
-      roles={[
-        'ADMINISTRADOR',
-        'VETERINARIO',
-      ]}
-    >
-      <SistemaLayout>
-        <HospitalizacionesPage />
-      </SistemaLayout>
-    </ProtectedRoute>
-  }
-/>
+          path="/hospitalizaciones"
+          element={
+
+            <ProtectedRoute
+              roles={[
+                'ADMINISTRADOR',
+                'VETERINARIO',
+              ]}
+            >
+
+              <SistemaLayout>
+
+                <HospitalizacionesPage />
+
+              </SistemaLayout>
+
+            </ProtectedRoute>
+
+          }
+        />
 
 
         {/* ================================================= */}
@@ -161,6 +205,7 @@ function App() {
         <Route
           path="/agenda"
           element={
+
             <ProtectedRoute
               roles={[
                 'ADMINISTRADOR',
@@ -168,10 +213,42 @@ function App() {
                 'RECEPCION',
               ]}
             >
+
               <SistemaLayout>
+
                 <AgendaPage />
+
               </SistemaLayout>
+
             </ProtectedRoute>
+
+          }
+        />
+
+
+        {/* ================================================= */}
+        {/* CAJA */}
+        {/* ================================================= */}
+
+        <Route
+          path="/caja"
+          element={
+
+            <ProtectedRoute
+              roles={[
+                'ADMINISTRADOR',
+                'RECEPCION',
+              ]}
+            >
+
+              <SistemaLayout>
+
+                <CajaPage />
+
+              </SistemaLayout>
+
+            </ProtectedRoute>
+
           }
         />
 
@@ -183,15 +260,21 @@ function App() {
         <Route
           path="/productos"
           element={
+
             <ProtectedRoute
               roles={[
                 'ADMINISTRADOR',
               ]}
             >
+
               <SistemaLayout>
+
                 <ProductosPage />
+
               </SistemaLayout>
+
             </ProtectedRoute>
+
           }
         />
 
@@ -203,16 +286,22 @@ function App() {
         <Route
           path="/servicios"
           element={
+
             <ProtectedRoute
               roles={[
                 'ADMINISTRADOR',
                 'VETERINARIO',
               ]}
             >
+
               <SistemaLayout>
+
                 <ServiciosPage />
+
               </SistemaLayout>
+
             </ProtectedRoute>
+
           }
         />
 
@@ -225,35 +314,29 @@ function App() {
         <Route
           path="/usuarios"
           element={
+
             <ProtectedRoute
               roles={[
                 'ADMINISTRADOR',
               ]}
             >
+
               <SistemaLayout>
+
                 <UsuariosPage />
+
               </SistemaLayout>
+
             </ProtectedRoute>
+
           }
         />
 
-        <Route
-  path="/caja"
-  element={
-    <ProtectedRoute
-      roles={[
-        'ADMINISTRADOR',
-        'RECEPCION',
-      ]}
-    >
-      <CajaPage />
-    </ProtectedRoute>
-  }
-/>
 
       </Routes>
 
     </BrowserRouter>
+
   )
 }
 

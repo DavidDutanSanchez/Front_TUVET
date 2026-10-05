@@ -32,12 +32,16 @@ type MenuRoute = {
 
 const SideBarMenu = () => {
 
-  const [collapsed, setCollapsed] =
-    useState(true)
+  const [
+    collapsed,
+    setCollapsed,
+  ] = useState(true)
 
-  const location = useLocation()
+  const location =
+    useLocation()
 
-  const navigate = useNavigate()
+  const navigate =
+    useNavigate()
 
 
   // =========================================================
@@ -68,19 +72,16 @@ const SideBarMenu = () => {
   // =========================================================
   // RUTAS DEL SISTEMA
   // =========================================================
+  //
+  // IMPORTANTE:
+  // "Inicio" NO se incluye aquí.
+  //
+  // La página "/" sigue existiendo como página pública,
+  // pero cuando el usuario inicia sesión y entra al sistema,
+  // ya no aparecerá la opción "Inicio" en el menú lateral.
+  // =========================================================
 
   const routes: MenuRoute[] = [
-
-    {
-      name: 'Inicio',
-      route: '/',
-      icon: '🏠',
-      roles: [
-        'ADMINISTRADOR',
-        'VETERINARIO',
-        'RECEPCION',
-      ],
-    },
 
     {
       name: 'Clientes',
@@ -187,19 +188,6 @@ const SideBarMenu = () => {
     route: string
   ) => {
 
-    // Inicio debe coincidir exactamente.
-    if (route === '/') {
-      return location.pathname === '/'
-    }
-
-    /*
-     * Para el resto permitimos también
-     * subrutas.
-     *
-     * Ejemplo:
-     * /hospitalizaciones
-     * /hospitalizaciones/123
-     */
     return (
       location.pathname === route ||
       location.pathname.startsWith(
@@ -360,7 +348,6 @@ const SideBarMenu = () => {
                   ruta.route
                 )
 
-
               return (
 
                 <Link
@@ -382,15 +369,15 @@ const SideBarMenu = () => {
                     ${
                       activo
                         ? `
-                          bg-blue-50
-                          font-semibold
-                          text-blue-700
-                        `
+                            bg-blue-50
+                            font-semibold
+                            text-blue-700
+                          `
                         : `
-                          text-slate-600
-                          hover:bg-slate-100
-                          hover:text-slate-900
-                        `
+                            text-slate-600
+                            hover:bg-slate-100
+                            hover:text-slate-900
+                          `
                     }
                   `}
                 >
@@ -455,7 +442,9 @@ const SideBarMenu = () => {
           >
 
 
-            {/* DATOS DEL USUARIO */}
+            {/* =================================================
+                DATOS DEL USUARIO
+               ================================================= */}
 
             <div
               className={`
@@ -478,7 +467,9 @@ const SideBarMenu = () => {
               {usuario.fotoPerfil ? (
 
                 <img
-                  src={usuario.fotoPerfil}
+                  src={
+                    usuario.fotoPerfil
+                  }
                   alt={
                     usuario.nombreUsuario
                   }
@@ -566,7 +557,9 @@ const SideBarMenu = () => {
 
             <button
               type="button"
-              onClick={cerrarSesion}
+              onClick={
+                cerrarSesion
+              }
               title={
                 collapsed
                   ? 'Cerrar sesión'

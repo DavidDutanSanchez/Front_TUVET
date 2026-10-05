@@ -204,11 +204,99 @@ function ProductosTable({
                   </td>
 
 
-                  <td className="px-5 py-4 text-center text-sm text-slate-600">
-                    {
-                      producto.stockMinimo
-                    }
-                  </td>
+                 <td className="px-5 py-4 text-center">
+
+  {producto.stockMinimo < 6 ? (
+
+    <div className="group relative inline-flex">
+
+      <span
+        className="
+          inline-flex
+          items-center
+          gap-1
+          rounded-lg
+          bg-red-100
+          px-3
+          py-1.5
+          text-sm
+          font-bold
+          text-red-700
+          ring-1
+          ring-red-200
+        "
+      >
+        ⚠️ {producto.stockMinimo}
+      </span>
+
+
+      {/* TOOLTIP */}
+
+      <div
+        className="
+          pointer-events-none
+          absolute
+          bottom-full
+          left-1/2
+          z-50
+          mb-2
+          hidden
+          w-52
+          -translate-x-1/2
+          rounded-lg
+          bg-slate-900
+          px-3
+          py-2
+          text-left
+          text-xs
+          font-medium
+          text-white
+          shadow-xl
+          group-hover:block
+        "
+      >
+        ⚠️ Producto próximo a agotarse.
+        Quedan solamente{' '}
+        <strong>
+          {producto.stockMinimo}
+        </strong>{' '}
+        unidades.
+
+        <div
+          className="
+            absolute
+            left-1/2
+            top-full
+            -translate-x-1/2
+            border-4
+            border-transparent
+            border-t-slate-900
+          "
+        />
+      </div>
+
+    </div>
+
+  ) : (
+
+    <span
+      className="
+        inline-flex
+        rounded-lg
+        bg-emerald-50
+        px-3
+        py-1.5
+        text-sm
+        font-semibold
+        text-emerald-700
+      "
+    >
+      {producto.stockMinimo}
+    </span>
+
+  )}
+
+</td>
 
 
                   <td className="px-5 py-4">
