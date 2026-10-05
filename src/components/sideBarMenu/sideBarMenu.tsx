@@ -14,6 +14,22 @@ import {
 } from '../../services/authService'
 
 
+// =========================================================
+// TIPO DE RUTA DEL MENÚ
+// =========================================================
+
+type MenuRoute = {
+  name: string
+  route: string
+  icon: string
+  roles: string[]
+}
+
+
+// =========================================================
+// COMPONENTE
+// =========================================================
+
 const SideBarMenu = () => {
 
   const [collapsed, setCollapsed] =
@@ -42,16 +58,18 @@ const SideBarMenu = () => {
       usuario?.permisos ||
       localStorage.getItem('rol') ||
       ''
-    ).toUpperCase()
+    )
+      .trim()
+      .toUpperCase()
 
   }, [usuario?.permisos])
 
 
   // =========================================================
-  // RUTAS
+  // RUTAS DEL SISTEMA
   // =========================================================
 
-  const routes = [
+  const routes: MenuRoute[] = [
 
     {
       name: 'Inicio',
@@ -85,15 +103,16 @@ const SideBarMenu = () => {
         'RECEPCION',
       ],
     },
+
     {
-  name: 'Hospitalizaciones',
-  route: '/hospitalizaciones',
-  icon: '🏥',
-  roles: [
-    'ADMINISTRADOR',
-    'VETERINARIO',
-  ],
-},
+      name: 'Hospitalizaciones',
+      route: '/hospitalizaciones',
+      icon: '🏥',
+      roles: [
+        'ADMINISTRADOR',
+        'VETERINARIO',
+      ],
+    },
 
     {
       name: 'Agenda',
@@ -102,6 +121,16 @@ const SideBarMenu = () => {
       roles: [
         'ADMINISTRADOR',
         'VETERINARIO',
+        'RECEPCION',
+      ],
+    },
+
+    {
+      name: 'Caja',
+      route: '/caja',
+      icon: '💵',
+      roles: [
+        'ADMINISTRADOR',
         'RECEPCION',
       ],
     },
@@ -147,7 +176,37 @@ const SideBarMenu = () => {
           (ruta) =>
             ruta.roles.includes(role)
         )
-      : routes
+      : []
+
+
+  // =========================================================
+  // DETERMINAR SI UNA RUTA ESTÁ ACTIVA
+  // =========================================================
+
+  const rutaEstaActiva = (
+    route: string
+  ) => {
+
+    // Inicio debe coincidir exactamente.
+    if (route === '/') {
+      return location.pathname === '/'
+    }
+
+    /*
+     * Para el resto permitimos también
+     * subrutas.
+     *
+     * Ejemplo:
+     * /hospitalizaciones
+     * /hospitalizaciones/123
+     */
+    return (
+      location.pathname === route ||
+      location.pathname.startsWith(
+        `${route}/`
+      )
+    )
+  }
 
 
   // =========================================================
@@ -173,18 +232,27 @@ const SideBarMenu = () => {
 
   const inicialUsuario =
     usuario?.nombreUsuario
+      ?.trim()
       ?.charAt(0)
-      ?.toUpperCase() || 'U'
+      ?.toUpperCase() ||
+    'U'
 
+
+  // =========================================================
+  // RENDER
+  // =========================================================
 
   return (
 
     <aside
       className={`
-        fixed left-0 top-0
+        fixed
+        left-0
+        top-0
         z-40
         h-screen
-        border-r border-slate-200
+        border-r
+        border-slate-200
         bg-white
         shadow-sm
         transition-all
@@ -210,21 +278,57 @@ const SideBarMenu = () => {
             LOGO
            =================================================== */}
 
-        <div className="flex h-20 items-center border-b border-slate-200 px-5">
+        <div
+          className="
+            flex
+            h-20
+            flex-shrink-0
+            items-center
+            border-b
+            border-slate-200
+            px-5
+          "
+        >
 
-          <div className="flex h-10 w-10 flex-shrink-0 items-center justify-center rounded-xl bg-blue-600 text-xl text-white">
+          <div
+            className="
+              flex
+              h-10
+              w-10
+              flex-shrink-0
+              items-center
+              justify-center
+              rounded-xl
+              bg-blue-600
+              text-xl
+              text-white
+            "
+          >
             🐾
           </div>
 
+
           {!collapsed && (
 
-            <div className="ml-3">
+            <div className="ml-3 min-w-0">
 
-              <div className="font-bold text-slate-900">
+              <div
+                className="
+                  truncate
+                  font-bold
+                  text-slate-900
+                "
+              >
                 TuVet
               </div>
 
-              <div className="text-xs text-slate-500">
+              <div
+                className="
+                  whitespace-nowrap
+                  text-xs
+                  text-slate-500
+                "
+              >
                 Clínica veterinaria
               </div>
 
@@ -239,14 +343,23 @@ const SideBarMenu = () => {
             MENÚ
            =================================================== */}
 
-        <nav className="flex-1 space-y-2 overflow-y-auto p-3">
+        <nav
+          className="
+            flex-1
+            space-y-2
+            overflow-y-auto
+            p-3
+          "
+        >
 
           {rutasVisibles.map(
             (ruta) => {
 
               const activo =
-                location.pathname ===
-                ruta.route
+                rutaEstaActiva(
+                  ruta.route
+                )
+
 
               return (
 
@@ -264,22 +377,53 @@ const SideBarMenu = () => {
                     rounded-xl
                     px-3
                     py-3
-                    transition
+                    transition-all
+                    duration-200
                     ${
                       activo
-                        ? 'bg-blue-50 text-blue-700'
-                        : 'text-slate-600 hover:bg-slate-100'
+                        ? `
+                          bg-blue-50
+                          font-semibold
+                          text-blue-700
+                        `
+                        : `
+                          text-slate-600
+                          hover:bg-slate-100
+                          hover:text-slate-900
+                        `
                     }
                   `}
                 >
 
-                  <div className="flex h-9 w-9 flex-shrink-0 items-center justify-center text-lg">
+                  {/* ICONO */}
+
+                  <div
+                    className="
+                      flex
+                      h-9
+                      w-9
+                      flex-shrink-0
+                      items-center
+                      justify-center
+                      text-lg
+                    "
+                  >
                     {ruta.icon}
                   </div>
 
+
+                  {/* TEXTO */}
+
                   {!collapsed && (
 
-                    <span className="ml-3 whitespace-nowrap text-sm font-medium">
+                    <span
+                      className="
+                        ml-3
+                        whitespace-nowrap
+                        text-sm
+                        font-medium
+                      "
+                    >
                       {ruta.name}
                     </span>
 
@@ -300,7 +444,15 @@ const SideBarMenu = () => {
 
         {usuario && (
 
-          <div className="border-t border-slate-200 p-3">
+          <div
+            className="
+              flex-shrink-0
+              border-t
+              border-slate-200
+              bg-white
+              p-3
+            "
+          >
 
 
             {/* DATOS DEL USUARIO */}
@@ -320,13 +472,16 @@ const SideBarMenu = () => {
               `}
             >
 
+
               {/* FOTO O INICIAL */}
 
               {usuario.fotoPerfil ? (
 
                 <img
                   src={usuario.fotoPerfil}
-                  alt={usuario.nombreUsuario}
+                  alt={
+                    usuario.nombreUsuario
+                  }
                   className="
                     h-10
                     w-10
@@ -360,15 +515,41 @@ const SideBarMenu = () => {
               )}
 
 
+              {/* NOMBRE Y ROL */}
+
               {!collapsed && (
 
-                <div className="ml-3 min-w-0">
+                <div
+                  className="
+                    ml-3
+                    min-w-0
+                    flex-1
+                  "
+                >
 
-                  <div className="truncate text-sm font-semibold text-slate-900">
-                    {usuario.nombreUsuario}
+                  <div
+                    className="
+                      truncate
+                      text-sm
+                      font-semibold
+                      text-slate-900
+                    "
+                  >
+                    {
+                      usuario.nombreUsuario
+                    }
                   </div>
 
-                  <div className="truncate text-[10px] font-semibold uppercase tracking-wide text-slate-500">
+                  <div
+                    className="
+                      truncate
+                      text-[10px]
+                      font-semibold
+                      uppercase
+                      tracking-wide
+                      text-slate-500
+                    "
+                  >
                     {role}
                   </div>
 
@@ -380,7 +561,7 @@ const SideBarMenu = () => {
 
 
             {/* =================================================
-                BOTÓN CERRAR SESIÓN
+                CERRAR SESIÓN
                ================================================= */}
 
             <button
@@ -400,7 +581,8 @@ const SideBarMenu = () => {
                 px-3
                 py-3
                 text-red-600
-                transition
+                transition-all
+                duration-200
                 hover:bg-red-50
                 ${
                   collapsed
@@ -410,13 +592,31 @@ const SideBarMenu = () => {
               `}
             >
 
-              <div className="flex h-9 w-9 flex-shrink-0 items-center justify-center text-lg">
+              <div
+                className="
+                  flex
+                  h-9
+                  w-9
+                  flex-shrink-0
+                  items-center
+                  justify-center
+                  text-lg
+                "
+              >
                 🚪
               </div>
 
+
               {!collapsed && (
 
-                <span className="ml-3 whitespace-nowrap text-sm font-semibold">
+                <span
+                  className="
+                    ml-3
+                    whitespace-nowrap
+                    text-sm
+                    font-semibold
+                  "
+                >
                   Cerrar sesión
                 </span>
 

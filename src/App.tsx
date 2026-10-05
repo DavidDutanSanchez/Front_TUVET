@@ -37,7 +37,7 @@ import UsuariosPage
 import HospitalizacionesPage
   from './pages/HospitalizacionesPage'
 
-
+import CajaPage from './pages/CajaPage'
 // ==========================================================
 // LAYOUT DEL SISTEMA INTERNO
 // ==========================================================
@@ -236,6 +236,20 @@ function App() {
             </ProtectedRoute>
           }
         />
+
+        <Route
+  path="/caja"
+  element={
+    <ProtectedRoute
+      roles={[
+        'ADMINISTRADOR',
+        'RECEPCION',
+      ]}
+    >
+      <CajaPage />
+    </ProtectedRoute>
+  }
+/>
 
       </Routes>
 
